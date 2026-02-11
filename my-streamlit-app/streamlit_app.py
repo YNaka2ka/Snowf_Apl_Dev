@@ -1,43 +1,57 @@
 import streamlit as st
 
-st.set_page_config(page_title="Enhanced Dashboard", layout="wide")
-st.title("📈 強化されたダッシュボード")
+# ページ関数の定義
+def home():
+    st.title("🏠 ホームページ")
+    st.write("マルチページアプリのメインページです")
+    
+    session = st.connection('snowflake').session()
+    st.subheader("📊 概要データ")
+    sample_data = session.create_dataframe(
+        [["Product A", 100], ["Product B", 150], ["Product C", 80]],
+        schema=["PRODUCT", "SALES"]
+    ).to_pandas()
+    st.dataframe(sample_data)
 
-session = st.connection('snowflake').session()
+def analytics():
+    st.title("📈 分析ページ")
+    st.write("詳細な分析とグラフを表示")
+    
+    session = st.connection('snowflake').session()
+    sample_data = session.create_dataframe(
+        [["Product A", 100], ["Product B", 150], ["Product C", 80]],
+        schema=["PRODUCT", "SALES"]
+    ).to_pandas()
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.bar_chart(sample_data.set_index('PRODUCT'))
+    with col2:
+        st.line_chart(sample_data.set_index('PRODUCT'))
 
-# サンプルデータ作成
-sample_data = session.create_dataframe(
-    [["Product A", 100], ["Product B", 150], ["Product C", 80]],
-    schema=["PRODUCT", "SALES"]
-).to_pandas()
+def settings():
+    st.title("⚙️ 設定ページ")
+    st.write("アプリケーション設定")
+    
+    # 設定オプション
+    st.selectbox("テーマ選択", ["ライト", "ダーク", "自動"])
+    st.slider("更新間隔（秒）", 5, 60, 30)
+    st.checkbox("自動更新を有効にする")
 
-col1, col2 = st.columns(2)
+# ナビゲーション設定
+pages = {
+    "ホーム": home,
+    "分析": analytics,
+    "設定": settings
+}
 
-with col1:
-    st.subheader("📊 データテーブル")
-    st.dataframe(sample_data, use_container_width=True)
+# ナビゲーション実行
+page = st.navigation({
+    "メインメニュー": [
+        st.Page(home, title="ホーム", icon="🏠"),
+        st.Page(analytics, title="分析", icon="📈"),
+        st.Page(settings, title="設定", icon="⚙️")
+    ]
+})
 
-with col2:
-    st.subheader("📈 売上グラフ")
-    # Streamlitネイティブの美しいバーチャート
-    st.bar_chart(sample_data.set_index('PRODUCT'), 
-                use_container_width=True)
-
-# その他のかっこいいグラフ
-st.subheader("📊 追加の可視化")
-col3, col4 = st.columns(2)
-
-with col3:
-    # 線グラフ
-    import pandas as pd
-    chart_data = pd.DataFrame({
-        '売上': [100, 150, 80, 120, 90],
-        '利益': [20, 45, 15, 35, 25]
-    })
-    st.line_chart(chart_data, use_container_width=True)
-
-with col4:
-    # エリアチャート
-    st.area_chart(chart_data, use_container_width=True)
-
-st.success("✨ Streamlitネイティブグラフで十分かっこいい！")
+page.run()
