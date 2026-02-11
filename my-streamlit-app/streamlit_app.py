@@ -1,35 +1,26 @@
 import streamlit as st
+import plotly.express as px
 
-# ページ設定
-st.set_page_config(page_title="My First Snowflake App", layout="wide")
+st.set_page_config(page_title="Enhanced Dashboard", layout="wide")
+st.title("📈 強化されたダッシュボード")
 
-# タイトル
-st.title("🚀 Streamlit in Snowflake GitHub連携版")
-
-# Snowflake接続
 session = st.connection('snowflake').session()
 
-# サイドバー
-st.sidebar.write("## アプリ情報")
-st.sidebar.write("このアプリはGitで管理されています")
-
-# メインコンテンツ
+# 新機能：グラフの追加
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("📊 データ表示")
-    
-    # サンプルデータの作成
+    st.subheader("📊 データテーブル")
     sample_data = session.create_dataframe(
-        [["Product A", 100], ["Product B", 150], ["Product C", 50]],
+        [["Product A", 100], ["Product B", 150], ["Product C", 80]],
         schema=["PRODUCT", "SALES"]
     ).to_pandas()
-    
-    st.dataframe(sample_data, use_container_width=True)
+    st.dataframe(sample_data)
 
 with col2:
-    st.subheader("📈 グラフ")
-    st.bar_chart(data=sample_data, x="PRODUCT", y="SALES")
+    st.subheader("📈 売上グラフ")
+    fig = px.bar(sample_data, x="PRODUCT", y="SALES", 
+                 title="製品別売上")
+    st.plotly_chart(fig, use_container_width=True)
 
-# Git情報表示
-st.info("✅ このアプリはGitリポジトリから管理されています")
+st.success("✨ 新機能追加：インタラクティブグラフ機能")
