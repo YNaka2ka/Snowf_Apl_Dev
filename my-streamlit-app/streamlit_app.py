@@ -1,26 +1,43 @@
 import streamlit as st
-import plotly.express as px
 
 st.set_page_config(page_title="Enhanced Dashboard", layout="wide")
 st.title("📈 強化されたダッシュボード")
 
 session = st.connection('snowflake').session()
 
-# 新機能：グラフの追加
+# サンプルデータ作成
+sample_data = session.create_dataframe(
+    [["Product A", 100], ["Product B", 150], ["Product C", 80]],
+    schema=["PRODUCT", "SALES"]
+).to_pandas()
+
 col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("📊 データテーブル")
-    sample_data = session.create_dataframe(
-        [["Product A", 100], ["Product B", 150], ["Product C", 80]],
-        schema=["PRODUCT", "SALES"]
-    ).to_pandas()
-    st.dataframe(sample_data)
+    st.dataframe(sample_data, use_container_width=True)
 
 with col2:
     st.subheader("📈 売上グラフ")
-    fig = px.bar(sample_data, x="PRODUCT", y="SALES", 
-                 title="製品別売上")
-    st.plotly_chart(fig, use_container_width=True)
+    # Streamlitネイティブの美しいバーチャート
+    st.bar_chart(sample_data.set_index('PRODUCT'), 
+                use_container_width=True)
 
-st.success("✨ 新機能追加：インタラクティブグラフ機能")
+# その他のかっこいいグラフ
+st.subheader("📊 追加の可視化")
+col3, col4 = st.columns(2)
+
+with col3:
+    # 線グラフ
+    import pandas as pd
+    chart_data = pd.DataFrame({
+        '売上': [100, 150, 80, 120, 90],
+        '利益': [20, 45, 15, 35, 25]
+    })
+    st.line_chart(chart_data, use_container_width=True)
+
+with col4:
+    # エリアチャート
+    st.area_chart(chart_data, use_container_width=True)
+
+st.success("✨ Streamlitネイティブグラフで十分かっこいい！")
