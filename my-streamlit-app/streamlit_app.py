@@ -4,7 +4,7 @@ import streamlit as st
 st.set_page_config(page_title="My First Snowflake App", layout="wide")
 
 # タイトル
-st.title("🚀 Streamlit in Snowflake with Git")
+st.title("🚀 Streamlit in Snowflake GitHub連携版")
 
 # Snowflake接続
 session = st.connection('snowflake').session()
@@ -21,7 +21,7 @@ with col1:
     
     # サンプルデータの作成
     sample_data = session.create_dataframe(
-        [["Product A", 100], ["Product B", 150], ["Product C", 80]],
+        [["Product A", 100], ["Product B", 150], ["Product C", 50]],
         schema=["PRODUCT", "SALES"]
     ).to_pandas()
     
